@@ -1,14 +1,20 @@
 -- Example:
---      a   b   c   d   e   f
--- I1   √
--- I2   √
--- I3       √   √
--- I4       √
--- I5           √   √
--- I6               √   √
--- I7                   √   √
--- I8                       √
--- > fdba ec
+--       a   b   c   d   e   f
+--  I1   √
+--  I2   √
+--  I3       √   √
+--  I4       √
+--  I5           √   √
+--  I6               √   √
+--  I7                   √   √
+--  I8                       √
+-- Output:
+--  adbf ce
+--  bdfa ce
+--  cea dfb
+--  dfab ec
+--  eab fc d
+--  fabd ce
 
 module Main (main) where
 
