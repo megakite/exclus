@@ -1,4 +1,4 @@
-module Util (rotateR) where
+module Util (rotateL) where
 
-rotateR :: Int -> [a] -> [a]
-rotateR = drop <> take
+rotateL :: Int -> [a] -> [a]
+rotateL = drop <> take

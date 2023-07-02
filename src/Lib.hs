@@ -9,7 +9,7 @@ import Control.Monad (replicateM)
 import Data.Function (on)
 import Data.List (minimumBy, sort, transpose, (\\))
 import GHC.Float.RealFracMethods (ceilingDoubleInt)
-import Util (rotateR)
+import Util (rotateL)
 
 type Matrix = [[Bool]]
 
@@ -59,7 +59,7 @@ findMutExclTripleImpl (currs, excls, comps) =
 
 findAllMutExclGroups :: Table -> Int -> [[Table]]
 findAllMutExclGroups _ 0 = []
-findAllMutExclGroups table n = findMutExclTriple table : findAllMutExclGroups (rotateR 1 table) (n - 1)
+findAllMutExclGroups table n = findMutExclTriple table : findAllMutExclGroups (rotateL 1 table) (n - 1)
 
 getTotalLength :: [Table] -> Int
 getTotalLength [] = 0
