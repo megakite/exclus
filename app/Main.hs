@@ -9,12 +9,7 @@
 --  I7                   √   √
 --  I8                       √
 -- Output:
---  adbf ce
---  bdfa ce
---  cea dfb
---  dfab ec
---  eab fc d
---  fabd ce
+--  ace bdf
 
 module Main (main) where
 
