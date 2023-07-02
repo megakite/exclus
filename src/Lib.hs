@@ -9,15 +9,13 @@ import Control.Monad (replicateM)
 import Data.Function (on)
 import Data.List (minimumBy, sort, transpose, (\\))
 import GHC.Float.RealFracMethods (ceilingDoubleInt)
+import Util (rotateR)
 
 type Matrix = [[Bool]]
 
 type Column = (Char, [Bool])
 
 type Table = [Column]
-
-rotateR :: Int -> [a] -> [a]
-rotateR = drop <> take
 
 inputMatrix :: Int -> Int -> IO Matrix
 inputMatrix rows cols = replicateM rows $ fmap (take cols . map (toEnum . read) . words) getLine
@@ -31,26 +29,41 @@ isMutExcl x y
   | x == y = False
   | otherwise = all (== False) $ zipWith (&&) (snd x) (snd y)
 
-getTotalLength :: [Table] -> Int
-getTotalLength [] = 0
-getTotalLength cols = sum $ map (ceilingDoubleInt . logBase 2 . fromIntegral . (+ 1) . length) cols
+-- Find mutually exclusive groups, using the implementation of pairs
+_findMutExclPair :: Table -> [Table]
+_findMutExclPair [] = []
+_findMutExclPair table =
+  let excls = snd $ _findMutExclPairImpl (table, [])
+   in excls : _findMutExclPair (table \\ excls)
 
-findMutExcl :: Table -> [Table]
-findMutExcl [] = []
-findMutExcl table =
-  let excl = snd $ findMutExclImpl (table, [])
-   in excl : findMutExcl (table \\ excl)
+_findMutExclPairImpl :: (Table, Table) -> (Table, Table)
+_findMutExclPairImpl ([], excls) = ([], excls)
+_findMutExclPairImpl (comps, excls) =
+  if all (isMutExcl $ head comps) excls
+    then _findMutExclPairImpl (tail comps, head comps : excls)
+    else _findMutExclPairImpl (tail comps, excls)
 
-findMutExclImpl :: (Table, Table) -> (Table, Table)
-findMutExclImpl ([], fin) = ([], fin)
-findMutExclImpl (comp, excl) =
-  if all (isMutExcl $ head comp) excl
-    then findMutExclImpl (tail comp, head comp : excl)
-    else findMutExclImpl (tail comp, excl)
+-- Find mutually exclusive groups, using the implementation of triples
+findMutExclTriple :: Table -> [Table]
+findMutExclTriple [] = []
+findMutExclTriple table =
+  let (_, excls, comps) = findMutExclTripleImpl (table, [], [])
+   in excls : findMutExclTriple comps
+
+findMutExclTripleImpl :: (Table, Table, Table) -> (Table, Table, Table)
+findMutExclTripleImpl ([], excls, comps) = ([], excls, comps)
+findMutExclTripleImpl (currs, excls, comps) =
+  if all (isMutExcl $ head currs) excls
+    then findMutExclTripleImpl (tail currs, head currs : excls, comps)
+    else findMutExclTripleImpl (tail currs, excls, head currs : comps)
 
 findAllMutExclGroups :: Table -> Int -> [[Table]]
 findAllMutExclGroups _ 0 = []
-findAllMutExclGroups table n = findMutExcl table : findAllMutExclGroups (rotateR 1 table) (n - 1)
+findAllMutExclGroups table n = findMutExclTriple table : findAllMutExclGroups (rotateR 1 table) (n - 1)
+
+getTotalLength :: [Table] -> Int
+getTotalLength [] = 0
+getTotalLength cols = sum $ map (ceilingDoubleInt . logBase 2 . fromIntegral . (+ 1) . length) cols
 
 findShortest :: [[Table]] -> [Table]
 findShortest [] = []
