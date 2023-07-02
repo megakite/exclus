@@ -1,11 +1,14 @@
 module Lib
   ( getFieldFormats,
-    mkTable,
+    inputMatrix,
     Matrix,
   )
 where
 
-import Data.List ((\\))
+import Control.Monad (replicateM)
+import Data.Function (on)
+import Data.List (minimumBy, sort, transpose, (\\))
+import GHC.Float.RealFracMethods (ceilingDoubleInt)
 
 type Matrix = [[Bool]]
 
@@ -13,31 +16,47 @@ type Column = (Char, [Bool])
 
 type Table = [Column]
 
+rotateR :: Int -> [a] -> [a]
+rotateR = drop <> take
+
+inputMatrix :: Int -> Int -> IO Matrix
+inputMatrix rows cols = replicateM rows $ fmap (take cols . map (toEnum . read) . words) getLine
+
 mkTable :: Matrix -> Table
+mkTable [] = []
 mkTable mat = zip ['a' ..] mat
 
-rotate :: Int -> [a] -> [a]
-rotate = drop <> take
+isMutExcl :: Column -> Column -> Bool
+isMutExcl x y = all (== False) $ zipWith (&&) (snd x) (snd y)
 
-isExclusive :: Column -> Column -> Bool
-isExclusive x y = all (== False) $ zipWith (&&) (snd x) (snd y)
+getTotalLength :: [Table] -> Int
+getTotalLength [] = 0
+getTotalLength cols = sum $ map (ceilingDoubleInt . logBase 2 . fromIntegral . (+ 1) . length) cols
 
-findExcl :: Table -> [Table]
-findExcl [] = []
-findExcl table =
-  let excl = snd $ findExclImpl (table, [])
-   in excl : findExcl (table \\ excl)
+findMutExcl :: Table -> [Table]
+findMutExcl [] = []
+findMutExcl table =
+  let excl = snd $ findMutExclImpl (table, [])
+   in excl : findMutExcl (table \\ excl)
 
-findExclImpl :: (Table, Table) -> (Table, Table)
-findExclImpl ([], fin) = ([], fin)
-findExclImpl (comp, excl) =
-  if all (isExclusive $ head comp) excl
-    then findExclImpl (tail comp, head comp : excl)
-    else findExclImpl (tail comp, excl)
+findMutExclImpl :: (Table, Table) -> (Table, Table)
+findMutExclImpl ([], fin) = ([], fin)
+findMutExclImpl (comp, excl) =
+  if all (isMutExcl $ head comp) excl
+    then findMutExclImpl (tail comp, head comp : excl)
+    else findMutExclImpl (tail comp, excl)
 
-findAllCases :: Table -> Int -> [[Table]]
-findAllCases _ 0 = []
-findAllCases table n = findExcl table : findAllCases (rotate 1 table) (n - 1)
+findAllMutExclGroups :: Table -> Int -> [[Table]]
+findAllMutExclGroups _ 0 = []
+findAllMutExclGroups table n = findMutExcl table : findAllMutExclGroups (rotateR 1 table) (n - 1)
 
-getFieldFormats :: Table -> [[[Char]]]
-getFieldFormats table = (map . map . map) fst $ findAllCases table (length table)
+findShortest :: [[Table]] -> [Table]
+findShortest [] = []
+findShortest tables = minimumBy (compare `on` getTotalLength) tables
+
+getFieldFormats :: Matrix -> String
+getFieldFormats [] = []
+getFieldFormats mat =
+  let table = mkTable $ transpose mat
+      len = length table
+   in unwords . map (sort . map fst) $ findShortest $ findAllMutExclGroups table len

@@ -18,13 +18,8 @@
 
 module Main (main) where
 
-import Control.Monad (replicateM)
-import Data.List (transpose)
 import Lib
 import System.Exit (exitSuccess)
-
-inputMatrix :: Int -> Int -> IO Matrix
-inputMatrix rows cols = replicateM rows $ fmap (take cols . map (toEnum . read) . words) getLine
 
 main :: IO ()
 main = do
@@ -37,6 +32,6 @@ main = do
 
   putStrLn "Define the table:"
   matrix <- inputMatrix numInst numSig
-  putStrLn . unlines . map (unwords . map reverse) . getFieldFormats . mkTable . transpose $ matrix
+  putStrLn . getFieldFormats $ matrix
 
   exitSuccess
