@@ -20,7 +20,7 @@ ace bdf
 1 0 0 1 0 0 0 0 0 1
 1 0 1 0 0 0 0 0 0 0
 0 1 0 0 0 1 0 1 0 0
-abeg cdf hij
+abeg hij cdf
 
 8
 10
@@ -32,4 +32,4 @@ abeg cdf hij
 1 0 0 0 0 0 0 1 0 1
 0 0 1 1 0 0 0 1 0 0
 1 1 0 0 0 0 0 1 0 0
-dij efh bg a c
+efh dij bg c a

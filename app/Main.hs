@@ -1,16 +1,3 @@
--- Example:
---       a   b   c   d   e   f
---  I1   √
---  I2   √
---  I3       √   √
---  I4       √
---  I5           √   √
---  I6               √   √
---  I7                   √   √
---  I8                       √
--- Output:
---  ace bdf
-
 module Main (main) where
 
 import Lib
