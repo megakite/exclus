@@ -27,7 +27,9 @@ mkTable [] = []
 mkTable mat = zip ['a' ..] mat
 
 isMutExcl :: Column -> Column -> Bool
-isMutExcl x y = all (== False) $ zipWith (&&) (snd x) (snd y)
+isMutExcl x y
+  | x == y = False
+  | otherwise = all (== False) $ zipWith (&&) (snd x) (snd y)
 
 getTotalLength :: [Table] -> Int
 getTotalLength [] = 0
@@ -59,4 +61,4 @@ getFieldFormats [] = []
 getFieldFormats mat =
   let table = mkTable $ transpose mat
       len = length table
-   in unwords . map (sort . map fst) $ findShortest $ findAllMutExclGroups table len
+   in unwords . map sort . (map . map) fst . findShortest $ findAllMutExclGroups table len
